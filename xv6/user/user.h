@@ -45,6 +45,6 @@ int thread_join();
 void lock_init(lock_t *);
 void lock_acquire(lock_t *);
 void lock_release(lock_t *);
-
+void cond_init(cond_t *);
 #endif // _USER_H_
 

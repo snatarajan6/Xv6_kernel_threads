@@ -144,3 +144,10 @@ void lock_release(lock_t *lock)
    lock->flag = 0;
 }
 
+void cond_init(cond_t *cv)
+{
+cv->queue.front = -1;
+cv->queue.rear = -1;
+cv->queue.capacity = 8; // NTHREADS = 8 
+}
+
