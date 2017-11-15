@@ -94,6 +94,18 @@ thread_create(void (*fn)(void*), void *arg)
 
   return pid;
 }
+
+int
+thread_join()
+{
+int pid;
+void* stack;
+pid = join(&stack); 
+
+return pid;
+}
+
+
 int
 atoi(const char *s)
 {
@@ -116,3 +128,19 @@ memmove(void *vdst, void *vsrc, int n)
     *dst++ = *src++;
   return vdst;
 }
+
+void lock_init(lock_t *lock)
+{
+   lock->flag = 0;
+}
+
+void lock_acquire(lock_t *lock)
+{
+   while((xchg(&lock->flag, 1)) == 1);
+}
+
+void lock_release(lock_t *lock)
+{
+   lock->flag = 0;
+}
+

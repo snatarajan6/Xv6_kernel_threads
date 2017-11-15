@@ -14,10 +14,13 @@ int
 main(int argc, char *argv[])
 {
 //int* arg = 2; 
-int pid = thread_create(fn, 0);  
-
-
+int pid = thread_create(fn, 0); 
+printf(1, "From main : pid %d ", pid); 
 int join_pid = thread_join();
+
+if(join_pid == pid ) printf(1, "SUCCESS");
+
+
 //if(pid == 0) { printf(1, "In the thread"); }
 //else { printf(1, "in parent");	}
 

@@ -138,10 +138,10 @@ if((np = allocproc()) == 0)
   np->pgdir = proc->pgdir;
   np->sz = proc->sz;
 
-  if(proc->thread == 0)
+//  if(proc->thread == 0)
   np->parent = proc;
-  else
-  np->parent = proc->parent;
+//  else
+//  np->parent = proc->parent;
 
   *np->tf = *proc->tf;
    np->thread = 1;
@@ -150,7 +150,13 @@ if((np = allocproc()) == 0)
    np->tf->esp = (int)stack + 4092;
    *((int*)(np->tf->esp)) = (int)arg; 
    *((int*)(np->tf->esp - 4)) =0xFFFFFFFF;
-   np->tf->esp -= 4;
+    np->tf->esp -= 4;
+//   np->tf->esp = (int)stack;
+// memmove((void*)np->tf->esp, stack, PGSIZE);
+
+   //np->tf->esp += PGSIZE - 2*sizeof(void*);
+   
+   np->tf->ebp = np->tf->esp;
    
 
   for(i = 0; i < NOFILE; i++)
@@ -160,7 +166,8 @@ if((np = allocproc()) == 0)
   pid = np->pid;
   np->state = RUNNABLE;
   safestrcpy(np->name, proc->name, sizeof(proc->name));
-return pid;
+
+  return pid;
 }
 
 // Create a new process copying p as the parent.
@@ -247,7 +254,7 @@ exit(void)
 // Join: Waits for a child process to exit and return its pid.
 // Return -1 if this process has no children.
 int
-join(void)
+join(void** stack)
 {
   struct proc *p;
   int havekids, pid;
@@ -257,7 +264,7 @@ join(void)
     // Scan through table looking for zombie children.
     havekids = 0;
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->parent != proc)
+      if(p->parent != proc || p->pgdir != proc->pgdir)
         continue;
       havekids = 1;
       if(p->state == ZOMBIE){
@@ -265,13 +272,13 @@ join(void)
         pid = p->pid;
         kfree(p->kstack);
         p->kstack = 0;
-        freevm(p->pgdir);
-	free(p->stack);
+        //freevm(p->pgdir);
         p->state = UNUSED;
         p->pid = 0;
         p->parent = 0;
         p->name[0] = 0;
         p->killed = 0;
+    	*(int*)stack = p->stack;
         release(&ptable.lock);
         return pid;
       }

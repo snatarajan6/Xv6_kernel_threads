@@ -28,6 +28,16 @@ sys_clone(void)
 }
 
 int
+sys_join(void)
+{
+  int stack;
+  if(argint(0, &stack) < 0)
+	return -1;
+
+  return join((void **)stack);
+}
+
+int
 sys_exit(void)
 {
   exit();

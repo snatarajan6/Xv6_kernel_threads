@@ -9,6 +9,7 @@ USER_PROGS := \
 	ln\
 	ls\
 	mkdir\
+	clone_clone\
 	hello\
 	rm\
 	sh\
