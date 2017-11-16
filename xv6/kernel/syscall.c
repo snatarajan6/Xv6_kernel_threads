@@ -106,6 +106,7 @@ static int (*syscalls[])(void) = {
 [SYS_clone]   sys_clone,
 [SYS_join]    sys_join,
 [SYS_cv_init] sys_cv_init,
+[SYS_cv_wait] sys_cv_wait,
 };
 
 // Called on a syscall trap. Checks that the syscall number (passed via eax)

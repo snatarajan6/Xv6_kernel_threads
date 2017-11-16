@@ -158,14 +158,16 @@ cv_init(cv);
 void cond_wait(cond_t *cv, lock_t *lock){
 
 if(lock->flag == 0){
-printf(1, "lock not acquired\n"); 
+printf(2, "lock not acquired\n"); 
 exit();
 }
-
+lock_acquire(&cv->qlock);
 if(cv_wait(cv) == -1){
-printf(1,"cv_wait failed");
+printf(2,"cv_wait failed");
+lock_release(&cv->qlock);
 exit();
 }
+lock_release(&cv->qlock);
 
 }
 

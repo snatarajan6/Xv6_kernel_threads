@@ -13,6 +13,14 @@ sys_fork(void)
 }
 
 int
+sys_cv_wait(void)
+{
+ int cv;
+ if(argint(0, &cv) < 0)
+	return -1;
+ return cv_wait((cond_t *)cv);
+}
+int
 sys_cv_init(void)
 {
  int cv;

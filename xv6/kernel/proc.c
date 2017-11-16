@@ -19,11 +19,25 @@ extern void trapret(void);
 
 static void wakeup1(void *chan);
 
+
+int
+cv_wait(cond_t* cv){
+if(enQueue(&cv->queue, proc->pid) == -1) panic("Queue is Full");
+
+acquire(&ptable.lock);
+proc->state = SLEEPING;
+sched();
+release(&ptable.lock);
+
+return 0;
+}
+
 int
 cv_init(cond_t* cv){
 cv->queue.front = -1;
 cv->queue.rear = -1;
 cv->queue.capacity = 8;
+cv->qlock.flag = 0;
 return 0;
 }
 

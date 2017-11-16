@@ -4,7 +4,7 @@
 #include "fs.h"
 
 cond_t c;
-
+lock_t lock;
 void fn(void *arg){
 
 printf(1, "Hello from the function %d", (int *)arg);
@@ -16,8 +16,11 @@ int
 main(int argc, char *argv[])
 {
 //int* arg = 2; 
-
+lock_init(&lock);
 cond_init(&c);
+
+lock_acquire(&lock);
+cond_wait(&c, &lock);
 
 int pid = thread_create(fn, 0); 
 printf(1, "From main : pid %d ", pid); 

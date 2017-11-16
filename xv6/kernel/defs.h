@@ -1,6 +1,7 @@
 #ifndef _DEFS_H_
 #define _DEFS_H_
 
+#define NTHREADS 8
 struct buf;
 struct context;
 struct file;
@@ -112,7 +113,12 @@ void            wakeup(void*);
 void            yield(void);
 int		clone(void* fn, void *arg, void *stack);
 int		cv_init(cond_t *);
-
+int		cv_wait(cond_t *);
+// queue.c
+int		isFull(q_t *);
+int		isEmpty(q_t *);
+int		enQueue(q_t *, int);
+//int		deQueue(q_t *);
 
 // swtch.S
 void            swtch(struct context**, struct context*);
