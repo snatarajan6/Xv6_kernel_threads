@@ -111,6 +111,8 @@ int		join(void**);
 void            wakeup(void*);
 void            yield(void);
 int		clone(void* fn, void *arg, void *stack);
+int		cv_init(cond_t *);
+
 
 // swtch.S
 void            swtch(struct context**, struct context*);

@@ -27,6 +27,8 @@ int sleep(int);
 int uptime(void);
 int clone(void(*fn)(void*), void *, void *);
 int join(void**);
+int cv_init(cond_t *);
+int cv_wait(cond_t *);
 // user library functions (ulib.c)
 int stat(char*, struct stat*);
 char* strcpy(char*, char*);
@@ -46,5 +48,6 @@ void lock_init(lock_t *);
 void lock_acquire(lock_t *);
 void lock_release(lock_t *);
 void cond_init(cond_t *);
+void cond_wait(cond_t *, lock_t *);
 #endif // _USER_H_
 

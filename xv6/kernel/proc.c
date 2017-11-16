@@ -19,6 +19,14 @@ extern void trapret(void);
 
 static void wakeup1(void *chan);
 
+int
+cv_init(cond_t* cv){
+cv->queue.front = -1;
+cv->queue.rear = -1;
+cv->queue.capacity = 8;
+return 0;
+}
+
 void
 pinit(void)
 {

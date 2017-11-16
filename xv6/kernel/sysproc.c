@@ -13,6 +13,15 @@ sys_fork(void)
 }
 
 int
+sys_cv_init(void)
+{
+ int cv;
+ if(argint(0, &cv) < 0)
+	return -1;
+ return cv_init((cond_t *)cv);
+}
+
+int
 sys_clone(void)
 {
   int fn, arg, stack;
