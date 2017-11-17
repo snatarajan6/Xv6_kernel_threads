@@ -21,13 +21,46 @@ static void wakeup1(void *chan);
 
 
 int
-cv_wait(cond_t* cv){
-if(enQueue(&cv->queue, proc->pid) == -1) panic("Queue is Full");
+cv_signal(cond_t *cv)
+{
+int pid;
+struct proc *p;
+
+while((xchg(&cv->qlock.flag, 1)) == 1); // qlock acquire
+
+pid = deQueue(&cv->queue);
+
+cv->qlock.flag = 0; // qlock release
 
 acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+    if(p->state == SLEEPING && p->pid == pid){
+	cprintf("signalled pid : %d \n" , p->pid);
+      p->state = RUNNABLE;
+   }
+
+release(&ptable.lock);
+return 0;
+}
+
+int
+cv_wait(cond_t* cv, lock_t* lock){
+
+lock->flag = 0; // lock release
+while((xchg(&cv->qlock.flag, 1)) == 1); // qlock acquire
+
+if(enQueue(&cv->queue, proc->pid) == -1) panic("Queue is Full");
+
+cv->qlock.flag = 0; // qlock release
+
+acquire(&ptable.lock);
+proc->chan = proc;
 proc->state = SLEEPING;
 sched();
+proc->chan = 0;
 release(&ptable.lock);
+
+while((xchg(&lock->flag, 1)) == 1); // Reacquiring lock 
 
 return 0;
 }
@@ -384,6 +417,7 @@ scheduler(void)
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
       // before jumping back to us.
+      //cprintf("found runnable pid : %d\n", p->pid);
       proc = p;
       switchuvm(p);
       p->state = RUNNING;

@@ -21,7 +21,8 @@ cond_init(&c);
 
 lock_acquire(&lock);
 cond_wait(&c, &lock);
-
+cond_signal(&c);
+lock_release(&lock);
 int pid = thread_create(fn, 0); 
 printf(1, "From main : pid %d ", pid); 
 int join_pid = thread_join();

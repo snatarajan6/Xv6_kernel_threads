@@ -146,11 +146,7 @@ void lock_release(lock_t *lock)
 
 void cond_init(cond_t *cv)
 {
-
-cv_init(cv);
-//cv->queue.front = -1;
-//cv->queue.rear = -1;
-//cv->queue.capacity = 8; // NTHREADS = 8 
+   cv_init(cv);
 }
 
 
@@ -158,17 +154,18 @@ cv_init(cv);
 void cond_wait(cond_t *cv, lock_t *lock){
 
 if(lock->flag == 0){
-printf(2, "lock not acquired\n"); 
-exit();
-}
-lock_acquire(&cv->qlock);
-if(cv_wait(cv) == -1){
-printf(2,"cv_wait failed");
-lock_release(&cv->qlock);
-exit();
-}
-lock_release(&cv->qlock);
+	printf(2, "lock not acquired\n"); 
+	exit();
+	}
+
+if(cv_wait(cv, lock) == -1){
+	printf(2,"cv_wait failed");
+	lock_release(&cv->qlock);
+	exit();
+	}
 
 }
 
-
+void cond_signal(cond_t *cv){
+    cv_signal(cv);
+}

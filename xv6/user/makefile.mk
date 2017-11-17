@@ -10,6 +10,7 @@ USER_PROGS := \
 	ls\
 	mkdir\
 	clone_clone\
+	cond\
 	hello\
 	rm\
 	sh\

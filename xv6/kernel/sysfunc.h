@@ -27,4 +27,5 @@ int sys_clone(void);
 int sys_join(void);
 int sys_cv_init(void);
 int sys_cv_wait(void);
+int sys_cv_signal(void);
 #endif // _SYSFUNC_H_
