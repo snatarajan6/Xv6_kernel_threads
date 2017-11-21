@@ -35,7 +35,7 @@ cv->qlock.flag = 0; // qlock release
 acquire(&ptable.lock);
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
     if(p->state == SLEEPING && p->pid == pid){
-	cprintf("signalled pid : %d \n" , p->pid);
+//	cprintf("signalled pid : %d \n" , p->pid);
       p->state = RUNNABLE;
    }
 
@@ -163,7 +163,7 @@ int
 growproc(int n)
 {
   uint sz;
-  
+  struct proc *p; 
   sz = proc->sz;
   if(n > 0){
     if((sz = allocuvm(proc->pgdir, sz, sz + n)) == 0)
@@ -173,6 +173,12 @@ growproc(int n)
       return -1;
   }
   proc->sz = sz;
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+	if(p->pgdir == proc->pgdir)
+		p->sz = sz;
+	}
+  release(&ptable.lock);
   switchuvm(proc);
   return 0;
 }
@@ -294,9 +300,19 @@ exit(void)
   // Pass abandoned children to init.
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
     if(p->parent == proc){
-      p->parent = initproc;
-      if(p->state == ZOMBIE)
-        wakeup1(initproc);
+      	p->parent = initproc;
+	
+	if(p->thread == 1) 
+	{
+	p->state = UNUSED;
+	kfree(p->kstack);
+	p->kstack = 0;
+	p->parent = 0;
+	p->killed = 1 ;
+	}
+
+      	if(p->state == ZOMBIE)
+          wakeup1(initproc);
     }
   }
 

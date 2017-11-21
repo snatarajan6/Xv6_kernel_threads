@@ -11,6 +11,7 @@ USER_PROGS := \
 	mkdir\
 	clone_clone\
 	cond\
+	cond4\
 	hello\
 	rm\
 	sh\
