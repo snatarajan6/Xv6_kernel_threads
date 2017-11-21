@@ -75,6 +75,12 @@ trap(struct trapframe *tf)
             cpu->id, tf->cs, tf->eip);
     lapiceoi();
     break;
+ case T_PGFLT:
+	
+    if( rcr2() == 0xFFFFFFFF){
+	kill(proc->pid); 
+	break;
+    }
    
   default:
     if(proc == 0 || (tf->cs&3) == 0){
@@ -82,10 +88,6 @@ trap(struct trapframe *tf)
       cprintf("unexpected trap %d from cpu %d eip %x (cr2=0x%x)\n",
               tf->trapno, cpu->id, tf->eip, rcr2());
       panic("trap");
-    }
-    if( tf->eip == 0xFFFFFFFF){
-	proc->killed = 1; 
-	exit();
     }
     // In user space, assume process misbehaved.
     cprintf("pid %d %s: trap %d err %d on cpu %d "

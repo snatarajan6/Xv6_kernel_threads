@@ -30,7 +30,7 @@ while((xchg(&cv->qlock.flag, 1)) == 1); // qlock acquire
 
 pid = deQueue(&cv->queue);
 
-cv->qlock.flag = 0; // qlock release
+xchg(&cv->qlock.flag ,0); // lock release
 
 acquire(&ptable.lock);
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
@@ -46,14 +46,19 @@ return 0;
 int
 cv_wait(cond_t* cv, lock_t* lock){
 
-lock->flag = 0; // lock release
+
 while((xchg(&cv->qlock.flag, 1)) == 1); // qlock acquire
 
-if(enQueue(&cv->queue, proc->pid) == -1) panic("Queue is Full");
+if(enQueue(&cv->queue, proc->pid) == -1){
+xchg(&lock->flag ,0); // lock release
+xchg(&cv->qlock.flag ,0); // qlock release
+ panic("Queue is Full");
+}
 
-cv->qlock.flag = 0; // qlock release
 
+xchg(&lock->flag ,0); // lock release
 acquire(&ptable.lock);
+xchg(&cv->qlock.flag,0); // qlock release
 proc->chan = proc;
 proc->state = SLEEPING;
 sched();
@@ -300,17 +305,8 @@ exit(void)
   // Pass abandoned children to init.
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
     if(p->parent == proc){
-      	p->parent = initproc;
-	
-	if(p->thread == 1) 
-	{
-	p->state = UNUSED;
-	kfree(p->kstack);
-	p->kstack = 0;
-	p->parent = 0;
-	p->killed = 1 ;
-	}
-
+//      	if(p->pgdir == proc->pgdir) p->state = ZOMBIE;
+	p->parent = initproc;
       	if(p->state == ZOMBIE)
           wakeup1(initproc);
     }
@@ -378,7 +374,7 @@ wait(void)
     // Scan through table looking for zombie children.
     havekids = 0;
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->parent != proc || p->thread == 1)
+      if(p->parent != proc || p->pgdir == proc->pgdir)
         continue;
       havekids = 1;
       if(p->state == ZOMBIE){

@@ -141,7 +141,7 @@ void lock_acquire(lock_t *lock)
 
 void lock_release(lock_t *lock)
 {
-   lock->flag = 0;
+   xchg(&lock->flag, 0);
 }
 
 void cond_init(cond_t *cv)
